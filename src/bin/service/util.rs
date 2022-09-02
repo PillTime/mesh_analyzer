@@ -103,7 +103,6 @@ pub fn start_packet_capture(stop: Arc<AtomicBool>, capture_file: PathBuf, interf
             .expect("create capture")
             .immediate_mode(true)
             .timeout(100)
-            //          .rfmon(true) // crashes on most systems*
             .promisc(true)
             .open()
             .expect("activate capture")
@@ -117,9 +116,6 @@ pub fn start_packet_capture(stop: Arc<AtomicBool>, capture_file: PathBuf, interf
         }
     });
 }
-// *non-arch distros
-// (not really needed anyway, as it's expected for
-// the provided interface to already be in monitor mode)
 
 // read data from files
 // (we save in files while capturing just in case something crashes)

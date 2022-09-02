@@ -1,3 +1,5 @@
+use mesh_analyzer::{Event, MacAddr};
+
 use std::{
     fs::File,
     io::Read,
@@ -5,7 +7,6 @@ use std::{
 };
 
 use clap::{App, Arg, Command};
-use mesh_analyzer::{Event, MacAddr};
 use serde_json::from_slice;
 
 pub fn setup_cli_arg_parser() -> App<'static> {
@@ -77,7 +78,7 @@ impl Station {
                     .map(|e| e.as_ref().unwrap())
                 {
                     if !mac.contains(event.mac()) {
-                        mac.push(*event.mac());
+                        mac.push(event.mac().clone());
                     }
                 }
                 stations.push(Self {

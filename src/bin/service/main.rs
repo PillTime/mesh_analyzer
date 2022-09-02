@@ -1,4 +1,5 @@
 mod util;
+
 use crate::util::{
     create_ringbuffer, event_matches_packet, get_collected_data, initialize_events_file,
     load_bpf_program, setup_cli_arg_parser, start_packet_capture,

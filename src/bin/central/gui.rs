@@ -1,5 +1,7 @@
 use crate::util::Station;
 
+use mesh_analyzer::{Event, MacAddr};
+
 use std::{
     cell::RefCell,
     collections::HashMap,
@@ -17,7 +19,6 @@ use eframe::{
     App, CreationContext, Frame,
 };
 use egui_extras::{Size, TableBuilder};
-use mesh_analyzer::{Event, MacAddr, MacAddrT};
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 pub struct Gui {
@@ -116,7 +117,7 @@ impl Gui {
                     .on_hover_text(event.action().detailed());
                 ui.end_row();
                 ui.label("Interface:");
-                ui.label(format!("{} [{}]", event.iface(), event.mac().hex(),));
+                ui.label(format!("{} [{}]", event.iface(), event.mac(),));
                 ui.end_row();
                 ui.label("Timestamp:");
                 ui.label(
@@ -127,21 +128,21 @@ impl Gui {
                 ui.end_row();
                 ui.label("Path information:");
                 ui.end_row();
-                ui.label("\t\tDestiny:");
+                ui.label("\t\tDestination:");
                 ui.label(format!(
                     "{} [{}]",
                     self.name_from_mac(event.dst()),
-                    event.dst().hex()
+                    event.dst()
                 ));
                 ui.end_row();
                 if let Some(nh) = event.old_nh() {
                     ui.label("\t\tOld nexthop:");
-                    ui.label(format!("{} [{}]", self.name_from_mac(nh), nh.hex()));
+                    ui.label(format!("{} [{}]", self.name_from_mac(nh), nh));
                     ui.end_row();
                 }
                 if let Some(nh) = event.new_nh() {
                     ui.label("\t\tNew nexthop:");
-                    ui.label(format!("{} [{}]", self.name_from_mac(nh), nh.hex()));
+                    ui.label(format!("{} [{}]", self.name_from_mac(nh), nh));
                     ui.end_row();
                 }
             });
