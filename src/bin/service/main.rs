@@ -1,5 +1,3 @@
-#![warn(clippy::cargo, clippy::nursery, clippy::pedantic)]
-
 mod util;
 use crate::util::{
     create_ringbuffer, event_matches_packet, get_collected_data, initialize_events_file,
@@ -70,11 +68,11 @@ fn main() {
     while !stop.load(Ordering::Relaxed) {
         match ringbuf.poll(Duration::from_millis(100)) {
             Ok(()) => {}
-            Err(System(EINTR)) => continue, // man 2 epoll_wait | ERRORS section
+            Err(System(EINTR)) => break, // man 2 epoll_wait | ERRORS section
             Err(err) => panic!("{err:?}"),
         }
     }
-    eprintln!("Stopping...");
+    println!("\rStopping...");
 
     // finish the events file
     events_file
@@ -118,7 +116,7 @@ fn main() {
     }
 
     // rewrite the events file
-    File::create(format!("./{station}.json"))
+    File::create(events_filepath)
         .expect("recreate events file")
         .write_all(
             to_string_pretty(&events)

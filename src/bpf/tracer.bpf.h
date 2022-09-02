@@ -95,12 +95,14 @@ typedef struct Event {
     u8 iface[IFNAMSIZ];
 
     /// Action Info
+    u64 ts;
     Action action;
 
     /// Path Info
     u8 dst[ETH_ALEN];
     u8 old_nh[ETH_ALEN];
     u8 new_nh[ETH_ALEN];
+    bool has_nh; // only for del
 
     /// Packet Info
     u16 frm_ctrl;

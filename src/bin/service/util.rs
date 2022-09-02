@@ -1,6 +1,3 @@
-#![allow(clippy::cast_ptr_alignment)]
-#![allow(clippy::cast_possible_truncation)]
-
 use mesh_analyzer::{
     Event, RawEvent, TracerSkel, TracerSkelBuilder, CHECK_QOS, HAS_ADDR4, HAS_QOS, HDR_SIZE_3ADDR,
     HDR_SIZE_4ADDR,
@@ -16,7 +13,6 @@ use std::{
         Arc, Mutex,
     },
     thread,
-    time::SystemTime,
 };
 
 use byteorder::{ByteOrder, LittleEndian};
@@ -82,11 +78,8 @@ pub fn create_ringbuffer(skel: &TracerSkel, events: Arc<Mutex<File>>) -> RingBuf
             // callback function
             // parse raw bytes into an Event struct and save in the events file
             let count = counter.fetch_add(1, Ordering::SeqCst);
-            let event_struct = Event::from_raw(
-                unsafe { read(data.as_ptr().cast::<RawEvent>()) },
-                count,
-                SystemTime::now(),
-            );
+            let event_struct =
+                Event::from_raw(unsafe { read(data.as_ptr().cast::<RawEvent>()) }, count);
             let event_serialized = if count == 1 {
                 to_string(&event_struct).expect("serialize event")
             } else {
@@ -110,7 +103,7 @@ pub fn start_packet_capture(stop: Arc<AtomicBool>, capture_file: PathBuf, interf
             .expect("create capture")
             .immediate_mode(true)
             .timeout(100)
-            .rfmon(true)
+            //          .rfmon(true) // crashes on most systems*
             .promisc(true)
             .open()
             .expect("activate capture")
@@ -124,6 +117,9 @@ pub fn start_packet_capture(stop: Arc<AtomicBool>, capture_file: PathBuf, interf
         }
     });
 }
+// *non-arch distros
+// (not really needed anyway, as it's expected for
+// the provided interface to already be in monitor mode)
 
 // read data from files
 // (we save in files while capturing just in case something crashes)
@@ -149,7 +145,7 @@ pub fn event_matches_packet(event: &Event, data: &[u8], len: usize) -> bool {
 
     // get the length of layer 1 and check that the first two bytes of layer 2 can be read
     let layer1_len = LittleEndian::read_u16(&data[2..=3]) as usize;
-    if len <= layer1_len + 1 {
+    if len < layer1_len + 2 {
         return false;
     }
 
@@ -168,7 +164,7 @@ pub fn event_matches_packet(event: &Event, data: &[u8], len: usize) -> bool {
         } else {
             0 // no qos
         };
-    if layer1_len + layer2_len > len {
+    if len < layer1_len + layer2_len {
         return false;
     }
 
@@ -182,9 +178,9 @@ pub fn event_matches_packet(event: &Event, data: &[u8], len: usize) -> bool {
     let addr1 = &data[4..=9];
     let addr2 = &data[10..=15];
 
-    frm_ctrl == event.frm_ctrl()
-        && seq_ctrl == event.seq_ctrl()
-        && qos_ctrl == event.qos_ctrl()
+    frm_ctrl == *event.frm_ctrl()
+        && seq_ctrl == *event.seq_ctrl()
+        && qos_ctrl == *event.qos_ctrl()
         && event.compare_addr1(addr1)
         && event.compare_addr2(addr2)
 }

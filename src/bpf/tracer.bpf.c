@@ -1,5 +1,4 @@
 #include "tracer.bpf.h"
-#include "vmlinux.h"
 
 char LICENSE[] SEC("license") = "GPL";
 
@@ -28,6 +27,7 @@ int BPF_PROG(tx)
         return 0;
     }
 
+    pass->ts = event->ts;
     for (int i = 0; i < IFNAMSIZ; i++) pass->iface[i] = event->iface[i];
     for (int i = 0; i < ETH_ALEN; i++) {
         pass->mac[i] = event->mac[i];
@@ -111,6 +111,7 @@ int BPF_PROG (rx,
         return 0;
     }
 
+    pass->ts = event->ts;
     for (int i = 0; i < IFNAMSIZ; i++) pass->iface[i] = event->iface[i];
     for (int i = 0; i < ETH_ALEN; i++) {
         pass->mac[i] = event->mac[i];
@@ -190,6 +191,7 @@ int BPF_PROG(us)
         return 0;
     }
 
+    pass->ts = event->ts;
     for (int i = 0; i < IFNAMSIZ; i++) pass->iface[i] = event->iface[i];
     for (int i = 0; i < ETH_ALEN; i++) {
         pass->mac[i] = event->mac[i];
@@ -269,6 +271,7 @@ int BPF_PROG(add,
     struct mesh_path *ret
 ) {
     u32 tid = (u32)bpf_get_current_pid_tgid();
+    u64 ts = bpf_ktime_get_ns();
 
     // check if return value is an error or null
     if (ret == NULL || IS_ERR_VALUE((unsigned long)ret)) {
@@ -281,6 +284,7 @@ int BPF_PROG(add,
     Event init_event = {0}, *event = &init_event;
     Situation init_situation = SIT_ADD, *situation = &init_situation;
 
+    event->ts = ts;
     BPF_CORE_READ_INTO(&event->dst, ret, dst);
     BPF_CORE_READ_INTO(&event->mac, sdata, vif.addr);
     BPF_CORE_READ_STR_INTO(&event->iface, sdata, name);
@@ -301,6 +305,7 @@ int BPF_PROG(asg_chg,
     struct sta_info *sta
 ) {
     u32 tid = (u32)bpf_get_current_pid_tgid();
+    u64 ts = bpf_ktime_get_ns();
 
     Event init_event = {0}, *event;
     Situation init_situation = SIT_ASG, *situation;
@@ -321,6 +326,7 @@ int BPF_PROG(asg_chg,
     }
     situation = &init_situation;
 
+    event->ts = ts;
     BPF_CORE_READ_INTO(&event->new_nh, sta, addr);
 
     if (*situation != SIT_ADD_ASG) {
@@ -345,11 +351,12 @@ int BPF_PROG(asg_chg,
 //   ('mesh_path_del' calls '__mesh_path_del' several times, but we only need to register once,
 //    and we only want the info from the last call)
 SEC("fexit/__mesh_path_del")
-int BPF_PROG(del,
+int BPF_PROG(del_out,
     struct mesh_table *tbl,
     struct mesh_path *mpath
 ) {
     u32 tid = (u32)bpf_get_current_pid_tgid();
+    u64 ts = bpf_ktime_get_ns();
 
     Event init_event = {0}, *event;
     Situation init_situation = SIT_DEL, *situation;
@@ -364,13 +371,17 @@ int BPF_PROG(del,
             return 0;
         }
 
+        pass->ts = ts;
         pass->action = ACT_KR_EXP;
         BPF_CORE_READ_INTO(&pass->dst, mpath, dst);
         BPF_CORE_READ_INTO(&pass->mac, mpath, sdata, vif.addr);
         BPF_CORE_READ_STR_INTO(&pass->iface, mpath, sdata, name);
 
         if (mpath->next_hop != NULL) {
+            pass->has_nh = true;
             BPF_CORE_READ_INTO(&pass->old_nh, mpath, next_hop, addr);
+        } else {
+            pass->has_nh = false;
         }
 
         bpf_ringbuf_submit(pass, 0);
@@ -381,12 +392,16 @@ int BPF_PROG(del,
     event = &init_event;
     situation = &init_situation;
 
+    event->ts = ts;
     BPF_CORE_READ_INTO(&event->dst, mpath, dst);
     BPF_CORE_READ_INTO(&event->mac, mpath, sdata, vif.addr);
     BPF_CORE_READ_STR_INTO(&event->iface, mpath, sdata, name);
 
     if (mpath->next_hop != NULL) {
+        event->has_nh = true;
         BPF_CORE_READ_INTO(&event->old_nh, mpath, next_hop, addr);
+    } else {
+        event->has_nh = false;
     }
 
     bpf_map_update_elem(&event_store, &tid, event, BPF_ANY);

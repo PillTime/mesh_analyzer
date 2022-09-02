@@ -1,5 +1,7 @@
-target/
+/target/
+
+/src/binds.rs
+/src/bpf/.output/
+
 *.json
 *.pcap
-.output/
-binds.rs
