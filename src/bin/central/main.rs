@@ -21,11 +21,6 @@ fn main() {
     let files = get_files(folder);
     let stations = Station::stations_from_files(&files);
 
-    assert!(
-        !stations.is_empty(),
-        "no station could be found (missing files)"
-    );
-
     run_native(
         "Mesh Analyzer",
         NativeOptions::default(),

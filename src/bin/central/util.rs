@@ -3,7 +3,7 @@ use mesh_analyzer::{Event, MacAddr};
 use std::{
     fs::File,
     io::Read,
-    path::{Path, PathBuf},
+    path::{Path, PathBuf}
 };
 
 use clap::{App, Arg, Command};
@@ -102,6 +102,8 @@ impl Station {
             }
             idx += 1;
         }
+
+        assert!(!stations.is_empty(), "no stations found");
 
         Self::sort(&mut stations);
         stations
