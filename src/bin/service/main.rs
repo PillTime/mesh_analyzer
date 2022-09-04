@@ -56,10 +56,13 @@ fn main() {
         exit(1);
     }
 
+    // check verbose
+    let verbose: bool = cli_args.contains_id("verbose");
+
     // bpf initialization
     let events_file = initialize_events_file(events_filepath);
     let skeleton = load_bpf_program(cli_args.contains_id("debug"));
-    let ringbuf = create_ringbuffer(&skeleton, events_file.clone());
+    let ringbuf = create_ringbuffer(&skeleton, events_file.clone(), verbose);
 
     // packet capture
     start_packet_capture(stop.clone(), capture_filepath.to_path_buf(), interface);
@@ -106,6 +109,9 @@ fn main() {
                 for evt in &mut events {
                     if event_matches_packet(evt, pkt.data, pkt.header.caplen as usize) {
                         evt.push_packet(counter);
+                        if verbose {
+                            println!("Associated packet {} with event {}", counter, evt.id());
+                        }
                     }
                 }
             }

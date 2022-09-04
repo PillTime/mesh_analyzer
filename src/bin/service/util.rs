@@ -46,6 +46,12 @@ pub fn setup_cli_arg_parser() -> App<'static> {
                 .long("debug")
                 .help("Show debug information from the eBPF program."),
         )
+        .arg(
+            Arg::new("verbose")
+                .short('v')
+                .long("verbose")
+                .help("Show verbose output."),
+        )
 }
 
 pub fn initialize_events_file(filepath: &Path) -> Arc<Mutex<File>> {
@@ -70,7 +76,7 @@ pub fn load_bpf_program(verbose: bool) -> TracerSkel<'static> {
 }
 
 // create the ringbuffer to get data from the kernel
-pub fn create_ringbuffer(skel: &TracerSkel, events: Arc<Mutex<File>>) -> RingBuffer {
+pub fn create_ringbuffer(skel: &TracerSkel, events: Arc<Mutex<File>>, verbose: bool) -> RingBuffer {
     let counter = Arc::new(AtomicUsize::new(1));
     let mut ringbuf_builder = RingBufferBuilder::new();
     ringbuf_builder
@@ -90,6 +96,9 @@ pub fn create_ringbuffer(skel: &TracerSkel, events: Arc<Mutex<File>>) -> RingBuf
                 .expect("lock events file to write event")
                 .write_all(event_serialized.as_bytes())
                 .expect("write event to events file");
+            if verbose {
+                println!("Caught event ({})", event_struct.action());
+            }
             0
         })
         .expect("add callback for ringbuffer");
