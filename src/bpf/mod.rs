@@ -2,8 +2,10 @@ pub mod event;
 
 use crate::Action;
 
-use std::fmt::{Display, Formatter, Result};
-use std::time::SystemTime;
+use std::{
+    fmt::{Display, Formatter, Result},
+    time::SystemTime,
+};
 
 use lazy_static::lazy_static;
 use libc::ETH_ALEN;

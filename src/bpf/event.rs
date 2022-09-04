@@ -67,9 +67,7 @@ impl Event {
 
         Self {
             id: count,
-            ts: BOOT_TIME
-                .checked_add(Duration::from_nanos(raw.ts))
-                .expect("add boot time to timestamp"),
+            ts: *BOOT_TIME + Duration::from_nanos(raw.ts),
             pkts: Vec::with_capacity(1),
             action: raw.action,
             mac: MacAddr(raw.mac),

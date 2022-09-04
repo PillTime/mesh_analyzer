@@ -3,7 +3,7 @@ use mesh_analyzer::{Event, MacAddr};
 use std::{
     fs::File,
     io::Read,
-    path::{Path, PathBuf}
+    path::{Path, PathBuf},
 };
 
 use clap::{App, Arg, Command};
