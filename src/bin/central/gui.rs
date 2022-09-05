@@ -89,7 +89,7 @@ impl Gui {
                                                 |ui| {
                                                     ui.label(format!(
                                                         "{} ({})",
-                                                        event.action().to_string(),
+                                                        event.action(),
                                                         self.name_from_mac(event.dst())
                                                     ));
                                                     if ui.button("Info").clicked() {
