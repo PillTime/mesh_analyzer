@@ -148,7 +148,8 @@ pub fn event_matches_packet(event: &Event, data: &[u8], len: usize) -> bool {
         return false;
     }
 
-    // get the length of layer 1 and check that the first two bytes of layer 2 can be read
+    // get the length of layer 1 and check that
+    // the first two bytes of layer 2 can be read
     let layer1_len = LittleEndian::read_u16(&data[2..=3]) as usize;
     if len < layer1_len + 2 {
         return false;
@@ -157,7 +158,8 @@ pub fn event_matches_packet(event: &Event, data: &[u8], len: usize) -> bool {
     // reposition the 'data' "pointer"
     let data = &data[layer1_len..];
 
-    // get the length of layer 2 and make sure we have access to everything we need
+    // get the length of layer 2 and
+    // make sure we have access to everything we need
     let frm_ctrl = LittleEndian::read_u16(&data[0..=1]);
     let layer2_len = if frm_ctrl & HAS_ADDR4 == HAS_ADDR4 {
         HDR_SIZE_4ADDR

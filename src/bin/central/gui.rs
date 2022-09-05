@@ -58,7 +58,7 @@ impl Gui {
             .cell_layout(Layout::centered_and_justified(Direction::LeftToRight))
             .column(Size::exact(50.0))
             .columns(
-                Size::remainder().at_least(125.0).at_most(250.0),
+                Size::remainder().at_least(150.0).at_most(250.0),
                 num_stations,
             )
             .header(25.0, |mut head| {
@@ -87,7 +87,11 @@ impl Gui {
                                             ui.with_layout(
                                                 Layout::top_down_justified(Align::Center),
                                                 |ui| {
-                                                    ui.label(event.action().to_string());
+                                                    ui.label(format!(
+                                                        "{} ({})",
+                                                        event.action().to_string(),
+                                                        self.name_from_mac(event.dst())
+                                                    ));
                                                     if ui.button("Info").clicked() {
                                                         self.events_windows_open
                                                             .borrow_mut()

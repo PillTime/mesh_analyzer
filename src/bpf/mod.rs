@@ -35,20 +35,56 @@ impl Action {
             Self::ACT_TX_UNKNOWN => "Unknown action caused by a packet transmission.",
             Self::ACT_RX_UNKNOWN => "Unknown action caused by a packet reception.",
             Self::ACT_US_UNKNOWN => "Unknown action caused by command from user-space.",
-            Self::ACT_TX_ADD => "A packet transmission caused a mesh path to be added (without a nexthop).",
-            Self::ACT_TX_ADD_ASG => "A packet transmission caused a mesh path to be added (with a nexthop).",
-            Self::ACT_TX_ASG => "A packet transmission caused the insertion of a nexthop to a mesh path that didn't have one.",
-            Self::ACT_TX_CHG => "A packet transmission caused the update of a nexthop to a mesh path that already had one.",
+            Self::ACT_TX_ADD => {
+                "A packet transmission caused a mesh path \
+                to be added (without a nexthop)."
+            }
+            Self::ACT_TX_ADD_ASG => {
+                "A packet transmission caused a mesh path \
+                to be added (with a nexthop)."
+            }
+            Self::ACT_TX_ASG => {
+                "A packet transmission caused the insertion of a nexthop \
+                to a mesh path that didn't have one."
+            }
+            Self::ACT_TX_CHG => {
+                "A packet transmission caused the update of a nexthop \
+                to a mesh path that already had one."
+            }
             Self::ACT_TX_DEL => "A packet transmission caused a mesh path to be deleted.",
-            Self::ACT_RX_ADD => "A packet reception caused a mesh path to be added (without a nexthop).",
-            Self::ACT_RX_ADD_ASG => "A packet reception caused a mesh path to be added (with a nexthop).",
-            Self::ACT_RX_ASG => "A packet reception caused the insertion of a nexthop to a mesh path that didn't have one.",
-            Self::ACT_RX_CHG => "A packet reception caused the update of a nexthop to a mesh path that already had one.",
+            Self::ACT_RX_ADD => {
+                "A packet reception caused a mesh path \
+                to be added (without a nexthop)."
+            }
+            Self::ACT_RX_ADD_ASG => {
+                "A packet reception caused a mesh path \
+                to be added (with a nexthop)."
+            }
+            Self::ACT_RX_ASG => {
+                "A packet reception caused the insertion of a nexthop \
+                to a mesh path that didn't have one."
+            }
+            Self::ACT_RX_CHG => {
+                "A packet reception caused the update of a nexthop \
+                to a mesh path that already had one."
+            }
             Self::ACT_RX_DEL => "A packet reception caused a mesh path to be deleted.",
-            Self::ACT_US_ADD => "A command from user-space caused a mesh path to be added (without a nexthop).",
-            Self::ACT_US_ADD_ASG => "A command from user-space caused a mesh path to be added (with a nexthop).",
-            Self::ACT_US_ASG => "A command from user-space caused the insertion of a nexthop to a mesh path that didn't have one.",
-            Self::ACT_US_CHG => "A command from user-space caused the update of a nexthop to a mesh path that already had one.",
+            Self::ACT_US_ADD => {
+                "A command from user-space caused a mesh path \
+                to be added (without a nexthop)."
+            }
+            Self::ACT_US_ADD_ASG => {
+                "A command from user-space caused a mesh path \
+                to be added (with a nexthop)."
+            }
+            Self::ACT_US_ASG => {
+                "A command from user-space caused the insertion of a nexthop \
+                to a mesh path that didn't have one."
+            }
+            Self::ACT_US_CHG => {
+                "A command from user-space caused the update of a nexthop \
+                to a mesh path that already had one."
+            }
             Self::ACT_US_DEL => "A command from user-space caused a mesh path to be deleted.",
             Self::ACT_KR_EXP => "A mesh path was deleted because it expired.",
         }

@@ -18,8 +18,7 @@ fn main() {
             .expect("get folder from cli arguments"),
     );
 
-    let files = get_files(folder);
-    let stations = Station::stations_from_files(&files);
+    let stations = Station::stations_from_files(get_files(folder));
 
     run_native(
         "Mesh Analyzer",

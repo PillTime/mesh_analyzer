@@ -57,7 +57,7 @@ fn main() {
     }
 
     // check verbose
-    let verbose: bool = cli_args.contains_id("verbose");
+    let verbose = cli_args.contains_id("verbose");
 
     // bpf initialization
     let events_file = initialize_events_file(events_filepath);

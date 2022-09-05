@@ -27,7 +27,9 @@ pub fn get_files(folder: &Path) -> Vec<PathBuf> {
         .filter(Result::is_ok)
         .map(|e| e.unwrap().path())
     {
+        // for each entry in the folder...
         if let Some(ext) = entry.extension() {
+            // save the ones that end in '.json' or '.pcap'
             if ext == "json" || ext == "pcap" {
                 files.push(entry);
             }
@@ -52,18 +54,21 @@ pub struct Station {
 }
 
 impl Station {
-    pub fn stations_from_files(files: &Vec<PathBuf>) -> Vec<Self> {
+    pub fn stations_from_files(files: Vec<PathBuf>) -> Vec<Self> {
         let mut stations = Vec::with_capacity(files.len() / 2);
 
         // 'get_files()' already makes sure that 'files' is sorted,
         // and also that all elements end with either '.json' or '.pcap'
         // so we can assume that we can do 'f1 == f2' after getting the stems
-        // and we can also assume that 'f1' is '.json' and 'f2' is '.pcap' (sort)
+        // and we can also assume that 'f1' is '.json' and 'f2' is '.pcap'
         let mut idx = 1;
         while idx < files.len() {
             let f1 = &files[idx - 1].file_stem();
             let f2 = &files[idx].file_stem();
+
+            // there's a match, both files belong to a station
             if f1.is_some() && f1 == f2 {
+                // store the events in a 'Vec'
                 let mut events = vec![];
                 File::open(&files[idx - 1])
                     .expect("open events file")
@@ -71,6 +76,9 @@ impl Station {
                     .expect("read contents of events file");
                 let events: Vec<Option<Event>> =
                     from_slice(&events).expect("deserialize events file");
+
+                // get the MAC addresses in a 'Vec' as well
+                // (multiple MACs in case there was more than one interface)
                 let mut mac = vec![];
                 for event in events
                     .iter()
@@ -81,6 +89,8 @@ impl Station {
                         mac.push(event.mac().clone());
                     }
                 }
+
+                // store the station in the final 'Vec'
                 stations.push(Self {
                     name: f1.unwrap().to_string_lossy().to_string(),
                     mac,
@@ -88,19 +98,37 @@ impl Station {
                     pcap: files[idx].clone(),
                 });
                 idx += 1;
+
+                // there's only one more file in the list, meaning it doesn't
+                // have a match, and the loop will stop after this
                 if idx < files.len() {
                     let next = &files[idx].file_stem();
                     if idx == files.len() - 1 && next.is_some() {
-                        eprintln!("{} is missing a file", next.unwrap().to_string_lossy());
+                        eprintln!(
+                            "File missing for station {}",
+                            next.unwrap().to_string_lossy()
+                        );
                     }
                 }
+
+            // no match, meaning 'f1' doesn't have a match
             } else if f1.is_some() {
-                eprintln!("{} is missing a file", f1.unwrap().to_string_lossy());
+                eprintln!("File missing for station {}", f1.unwrap().to_string_lossy());
+
+                // these were the two last files, and in that case, if 'f1'
+                // didn't have a match, 'f2' won't have one either
                 if idx == files.len() - 1 && f2.is_some() {
-                    eprintln!("{} is missing a file", f2.unwrap().to_string_lossy());
+                    eprintln!("File missing for station {}", f2.unwrap().to_string_lossy());
                 }
             }
             idx += 1;
+        }
+
+        // loop never ran because there's only one file
+        if idx == 1 {
+            if let Some(f) = files[0].file_stem() {
+                eprintln!("File missing for station {}", f.to_string_lossy());
+            }
         }
 
         assert!(!stations.is_empty(), "no stations found");
@@ -125,6 +153,8 @@ impl Station {
         &self.pcap
     }
 
+    // sort events between all stations, placing 'None' where an event from
+    // another station is in the order
     fn sort(stations: &mut [Self]) {
         let mut events = vec![];
         for station in stations.iter_mut() {

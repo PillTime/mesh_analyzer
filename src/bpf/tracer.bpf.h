@@ -21,11 +21,6 @@
 #define MAX_ERRNO       4095
 #define IS_ERR_VALUE(x) __builtin_expect(!!((x) >= (unsigned long)-MAX_ERRNO), 0)
 
-static inline bool __attribute__((__warn_unused_result__))
-IS_PTR_ERR_OR_NULL(const void *ptr)
-{
-    return __builtin_expect(!!(!ptr), 0) || IS_ERR_VALUE((unsigned long)ptr);
-}
 
 const u16 HAS_ADDR4 = IEEE80211_FCTL_TODS  | IEEE80211_FCTL_FROMDS;
 const u16 HAS_QOS   = IEEE80211_FTYPE_DATA | IEEE80211_STYPE_QOS_DATA;
