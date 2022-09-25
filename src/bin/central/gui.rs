@@ -57,10 +57,7 @@ impl Gui {
             .striped(true)
             .cell_layout(Layout::centered_and_justified(Direction::LeftToRight))
             .column(Size::exact(50.0))
-            .columns(
-                Size::remainder().at_least(150.0).at_most(250.0),
-                num_stations,
-            )
+            .columns(Size::exact(250.0), num_stations)
             .header(25.0, |mut head| {
                 head.col(|ui| {
                     ui.heading(RichText::new("Time").strong());
