@@ -1,6 +1,7 @@
 /target/
 
 /src/binds.rs
+/src/bpf/vmlinux.h
 /src/bpf/.output/
 
 *.json

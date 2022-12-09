@@ -11,8 +11,8 @@ use libbpf_cargo::SkeletonBuilder;
 struct ActionCallbacks;
 
 impl ParseCallbacks for ActionCallbacks {
-    fn add_derives(&self, _name: &str) -> Vec<String> {
-        if _name == "Action" {
+    fn add_derives(&self, name: &str) -> Vec<String> {
+        if name == "Action" {
             vec!["Deserialize".into(), "Serialize".into()]
         } else {
             vec![]
@@ -28,6 +28,7 @@ fn main() {
     let hdr = format!("{bpf}/tracer.bpf.h");
     let skl = format!("{out}/tracer.skel.rs");
     let bnd = "./src/binds.rs".to_string();
+    println!("cargo:rerun-if-changed={vml}");
     println!("cargo:rerun-if-changed={src}");
     println!("cargo:rerun-if-changed={hdr}");
 
